@@ -1,81 +1,69 @@
-﻿import './App.css';
-// import NavElement from './components/Nav';
-import * as React from 'react';
-import { DefaultButton, PrimaryButton } from '@fluentui/react/lib/Button';
-import { Panel } from '@fluentui/react/lib/Panel';
-import { useBoolean } from '@fluentui/react-hooks';
-import { Dropdown, DropdownMenuItemType } from '@fluentui/react/lib/Dropdown';
+﻿import { initializeIcons } from '@fluentui/react/lib/Icons';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { NavBar } from './components/NavBar';
+import { Header } from './components/Header';
+import { COA } from './pages/COA';
+import { TB } from './pages/TB';
+import { Clients } from './pages/Clients'
+import { CreateTB } from "./pages/CreateTB"
+import { useEffect } from 'react';
+import { useDispatch } from 'react-redux';
+import { getAllCoa } from './features/coaSlice';
+import { getAllTb } from './features/tbSlice';
+import { EditTb } from './pages/EditTb';
+initializeIcons();
 
-const buttonStyles = { root: { marginRight: 8 } };
-
-const dropdownStyles = {
-    dropdown: { width: 300 },
-};
 function App() {
-    const [isOpen, { setTrue: openPanel, setFalse: dismissPanel }] = useBoolean(false);
-    
-    const submitHandler = () => {
-        
-    }
-    // This panel doesn't actually save anything; the buttons are just an example of what
-    // someone might want to render in a panel footer.
-    const onRenderFooterContent = React.useCallback(
-        () => (
-            <div>
-                <DefaultButton onClick={dismissPanel}>Cancel</DefaultButton>
-                <PrimaryButton onClick={submitHandler} styles={buttonStyles}>
-                    Save
-                </PrimaryButton>
-                
-            </div>
-        ),
-        [dismissPanel],
-    );
-    return (<>
-        <div>
-            <DefaultButton text="Open panel" onClick={openPanel} />
-            <Panel
-                isOpen={isOpen}
-                onDismiss={dismissPanel}
-                closeButtonAriaLabel="Close"
-                onRenderFooterContent={onRenderFooterContent}
-                isFooterAtBottom={true}
-            >
-                <p>New Trial Balance</p>
-                <div>
-                    <label htmlFor="trialName">Type</label>
-                    <div>
-                        <input type="radio" id="contactChoice1" name="contact" value="email" checked disabled/>
-                        <label for="contactChoice1">Statutory</label>
+  const dispatch = useDispatch();
 
-                        <input type="radio" id="contactChoice2" name="contact" value="phone" disabled/>
-                        <label for="contactChoice2">Management</label>
-                    </div>
-                    <label>Period</label>
-                    <Dropdown
-                        defaultSelectedKey="(02/04/2026 - 01/04/2027)"
-                        disabled={true}
-                        options={[{ key: "(02/04/2026 - 01/04/2027)", text: "(02/04/2026 - 01/04/2027)", itemType: DropdownMenuItemType.Header }, { key: "(02/04/2027 - 01/04/2028)", text: "(02/04/2027 - 01/04/2028)", itemType: DropdownMenuItemType.Header }]}
-                        styles={dropdownStyles}
-                    />
-                    <label htmlFor="trialName">Mode of import</label>
-                    <div>
-                        <input type="radio" id="contactChoice1" name="mode" value="email" disabled />
-                        <label for="contactChoice1">CSV</label>
+  useEffect(() => {
+    fetch('https://localhost:7117/coa')
+      .then(response => response.json())
+      .then(data => {
+        dispatch(getAllCoa(data));
+      })
+      .catch(error => console.error("Error fetching COA:", error));
+    fetch('https://localhost:7117/tb')
+      .then(response => response.json())
+      .then(data => {
+        dispatch(getAllTb(data));
+      })
+      .catch(error => console.error("Error fetching TB:", error));
+  }, []);
 
-                        <input type="radio" id="contactChoice2" name="mode" value="phone" disabled />
-                        <label for="contactChoice2">Bookkeeping</label>
 
-                        <input type="radio" id="contactChoice3" name="mode" value="mail" checked disabled />
-                        <label for="contactChoice3">Manual</label>
-                    </div>
-                </div>
-            </Panel>
+  return (
+    <Router>
+      <div style={{ display: "flex", width: "100vw", height: "100vh", overflow: "hidden" }}>
+
+        <NavBar />
+
+        <div style={{ display: "flex", flexDirection: "column", flex: 1, minWidth: 0 }}>
+          <Header />
+
+          <main
+            style={{
+              flex: 1,
+              overflowY: "auto",
+              overflowX: "hidden",
+              backgroundColor: "#ffffff",
+              padding: 0,
+            }}
+          >
+            <Routes>
+              <Route path="/" element={<Clients />} />
+              <Route path="/tb" element={<TB />} />
+              <Route path="/coa" element={<COA />} />
+              <Route path="/tbcreate" element={<CreateTB />} />
+              <Route path="/tbedit/:id/:index" element={<EditTb />} />
+
+            </Routes>
+          </main>
         </div>
 
-</>
-        );
-    
+      </div>
+    </Router>
+  );
 }
 
 export default App;
