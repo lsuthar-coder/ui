@@ -20,17 +20,16 @@ export const tbSlice = createSlice({
       const body = JSON.stringify({
         entries: [
           ...action.payload.data.map((i) => {
-            let temp = i.coa.split('-')
+            let temp = i.account.split('-')
             return {
               accountCode: temp[1],
               name: temp[0],
-              debit: i.Debit == "" ? 0.0 : i.Debit,
-              credit: i.Credit == "" ? 0.0 : i.Credit
+              debit: i.debit == "" ? 0.0 : i.debit,
+              credit: i.credit == "" ? 0.0 : i.credit
             }
           })
         ]
       })
-      console.log(body)
       fetch("https://localhost:7117/tb", {
         method: "POST",
         body: body,
@@ -38,10 +37,6 @@ export const tbSlice = createSlice({
           "Content-Type": "application/json",
         },
       })
-        .then((response) => {
-          response.json()
-          console.log(response)
-        })
     },
   },
 })

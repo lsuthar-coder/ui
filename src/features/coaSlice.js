@@ -19,14 +19,11 @@ export const coaSlice = createSlice({
         createCoa: (state, action) => {
             fetch("https://localhost:7117/coa", {
                 method: "POST",
-                body: JSON.stringify({ name: action.payload.name, code: action.payload.code }),
+                body: JSON.stringify({ name: action.payload.name, code: action.payload.code, accType: action.payload.accType, accGroup: action.payload.accGroup }),
                 headers: {
                     "Content-Type": "application/json",
                 },
             })
-                .then((response) => {
-                    response.json()
-                })
         },
     },
 })

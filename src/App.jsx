@@ -1,16 +1,11 @@
 ﻿import { initializeIcons } from '@fluentui/react/lib/Icons';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { NavBar } from './components/NavBar';
-import { Header } from './components/Header';
-import { COA } from './pages/COA';
-import { TB } from './pages/TB';
-import { Clients } from './pages/Clients'
-import { CreateTB } from "./pages/CreateTB"
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { getAllCoa } from './features/coaSlice';
 import { getAllTb } from './features/tbSlice';
-import { EditTb } from './pages/EditTb';
+import { Header, NavBar } from './components';
+import { DashboardPage, ClientsPage, ChartOfAccountsPage, TrialBalancePage, CreateTrialBalance } from "./pages"
 initializeIcons();
 
 function App() {
@@ -46,17 +41,16 @@ function App() {
               flex: 1,
               overflowY: "auto",
               overflowX: "hidden",
-              backgroundColor: "#ffffff",
+              backgroundColor: "white",
               padding: 0,
             }}
           >
             <Routes>
-              <Route path="/" element={<Clients />} />
-              <Route path="/tb" element={<TB />} />
-              <Route path="/coa" element={<COA />} />
-              <Route path="/tbcreate" element={<CreateTB />} />
-              <Route path="/tbedit/:id/:index" element={<EditTb />} />
-
+              <Route path="/" element={<DashboardPage />} />
+              <Route path="/tax" element={<ClientsPage />} />
+              <Route path="/tax/generalsettings/accounts" element={<ChartOfAccountsPage />} />
+              <Route path="/tax/clients" element={<TrialBalancePage />} />
+              <Route path="/tax/clients/create" element={<CreateTrialBalance />} />
             </Routes>
           </main>
         </div>
