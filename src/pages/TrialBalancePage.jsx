@@ -126,7 +126,7 @@ export const TrialBalancePage = () => {
             />
         </FocusTrapZone>
         <div style={{ width: '80vw' }}>
-            <CustomTable columns={tableColums} items={tableData} isCompactMode={false} isModalSelection={false} />
+            <CustomTable columns={tableColums} items={tableData} isCompactMode={true} isModalSelection={false} />
             <Stack horizontal horizontalAlign="space-between" verticalAlign="center" styles={{ root: { padding: '12px 8px' } }}>
                 <Stack horizontal verticalAlign="center" tokens={{ childrenGap: 8 }}>
                     <Text>Show</Text>
