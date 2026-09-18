@@ -1,9 +1,12 @@
+import { Pivot, PivotItem } from '@fluentui/react';
 import React from 'react';
 import { Checkbox, Stack } from '@fluentui/react';
 import { CommandBar } from '@fluentui/react/lib/CommandBar';
+import { Separator } from '@fluentui/react/lib/Separator';
 import { FocusTrapZone } from '@fluentui/react/lib/FocusTrapZone';
 import { Text } from '@fluentui/react/lib/Text';
 import { Breadcrumb } from '@fluentui/react/lib/Breadcrumb';
+import { IconButton } from '@fluentui/react/lib/Button';
 import { CustomTable } from '../components';
 import { useSelector } from 'react-redux';
 import { TextField } from '@fluentui/react/lib/TextField';
@@ -18,6 +21,10 @@ const stackTokens = { childrenGap: 0 };
 const dropdownStyles = { dropdown: { width: 300, marginTop: "8px" } };
 
 export const ChartOfAccountsPage = () => {
+    const [itemsCount, setItemsCount] = React.useState(5);
+    const [currentPage, setCurrentPage] = React.useState(1);
+    const [allTableData, setAllTableData] = React.useState([]);
+    const [tableData, setTableData] = React.useState([]);
     const [enableFocusTrap, setEnableFocusTrap] = React.useState(false);
     const [panelOpen, setPanelOpen] = React.useState(false);
     const [name, setName] = React.useState("")
@@ -61,23 +68,47 @@ export const ChartOfAccountsPage = () => {
     const coaList = useSelector((state) => state.coa.value);
 
     const tableColums = [
-        { key: 'sno', name: 'S.No', fieldName: 'sno', minWidth: 60, maxWidth: 80 },
-        { key: 'code', name: 'Code', fieldName: 'code', minWidth: 100, maxWidth: 140 },
-        { key: 'account', name: 'Account', fieldName: 'account', minWidth: 180 },
-        { key: 'accountType', name: 'Account Type', fieldName: 'accountType', minWidth: 120, maxWidth: 160 },
-        { key: 'accountGroup', name: 'Account Group', fieldName: 'accountGroup', minWidth: 220 },
+        { key: 'sno', name: 'S.No', fieldName: 'sno', minWidth: 100 },
+        { key: 'code', name: 'Code', fieldName: 'code', minWidth: 100 },
+        { key: 'account', name: 'Account', fieldName: 'account', minWidth: 500 },
+        { key: 'accountType', name: 'Account Type', fieldName: 'accountType', minWidth: 180 },
+        { key: 'accountGroup', name: 'Account Group', fieldName: 'accountGroup', minWidth: 180 },
+        { key: 'forClients', name: 'For Clients', fieldName: 'forClients', minWidth: 100 },
+        { key: 'archive', name: 'Archive', fieldName: 'archive', minWidth: 100 },
+        { key: 'edit', name: '', fieldName: 'edit', minWidth: 100 },
     ];
 
-    const tableItems = (Array.isArray(coaList) ? coaList : []).map((coa, idx) => {
-        return {
+    React.useEffect(() => {
+        const nextTableData = (Array.isArray(coaList) ? coaList : []).map((coa, idx) => ({
             key: `coa-${idx + 1}`,
             sno: idx + 1,
             code: coa.code ?? coa.Code,
             account: coa.name ?? coa.Name,
             accountType: coa.accType ?? coa.accountType,
-            accountGroup: coa.accGroup ?? coa.accountGroup
-        }
-    });
+            accountGroup: coa.accGroup ?? coa.accountGroup,
+            forClients: <Checkbox />,
+            archive: <Checkbox />,
+            edit: <IconButton iconProps={{ iconName: 'Edit' }} title="Edit" ariaLabel="Edit" disabled={!true} />
+        }));
+
+        setAllTableData(nextTableData);
+        setCurrentPage(1);
+        setTableData(nextTableData.slice(0, itemsCount));
+    }, [coaList]);
+
+    const pageCount = Math.max(1, Math.ceil(allTableData.length / itemsCount));
+
+    const updateTablePage = (page, count = itemsCount) => {
+        const startIndex = (page - 1) * count;
+        setCurrentPage(page);
+        setTableData(allTableData.slice(startIndex, startIndex + count));
+    };
+
+    const itemsCountChangeHandler = (_event, option) => {
+        const nextItemsCount = Number(option?.key ?? 5);
+        setItemsCount(nextItemsCount);
+        updateTablePage(1, nextItemsCount);
+    };
 
     const options = typeData.flatMap((group) => [
         {
@@ -122,6 +153,12 @@ export const ChartOfAccountsPage = () => {
             items={itemsWithHref}
             maxDisplayedItems={3}
         />
+        <Separator />
+        <Pivot aria-label="Basic Pivot Example">
+            {['Limited', 'LLP', 'Individual', 'Partnership', 'Limited Partnership'].map((pivotItem) => {
+                return <PivotItem headerText={pivotItem} key={pivotItem} />
+            })}
+        </Pivot>
         <FocusTrapZone disabled={!enableFocusTrap}>
             <CommandBar
                 items={_items}
@@ -130,7 +167,34 @@ export const ChartOfAccountsPage = () => {
                 farItemsGroupAriaLabel="More actions"
             />
         </FocusTrapZone>
-        <CustomTable columns={tableColums} items={tableItems} isCompactMode={false} isModalSelection={false} />
+        <div style={{ width: '80vw' }}>
+            <CustomTable columns={tableColums} items={tableData} isCompactMode={false} isModalSelection={false} />
+            <Stack horizontal horizontalAlign="space-between" verticalAlign="center" styles={{ root: { padding: '12px 8px' } }}>
+                <Stack horizontal verticalAlign="center" tokens={{ childrenGap: 8 }}>
+                    <Text>Show</Text>
+                    <Dropdown
+                        selectedKey={itemsCount}
+                        options={[{ key: 5, text: '5' }, { key: 10, text: '10' }, { key: 15, text: '15' }]}
+                        onChange={itemsCountChangeHandler}
+                        styles={{ dropdown: { width: 70 } }}
+                    />
+                    <Text>Items</Text>
+                </Stack>
+                <Stack horizontal verticalAlign="center" tokens={{ childrenGap: 8 }}>
+                    <DefaultButton
+                        text="Previous"
+                        onClick={() => updateTablePage(currentPage - 1)}
+                        disabled={currentPage === 1}
+                    />
+                    <Text>{`${currentPage} of ${pageCount}`}</Text>
+                    <DefaultButton
+                        text="Next"
+                        onClick={() => updateTablePage(currentPage + 1)}
+                        disabled={currentPage >= pageCount}
+                    />
+                </Stack>
+            </Stack>
+        </div>
         <Panel
             isOpen={panelOpen}
             onDismiss={closePanelhandler}

@@ -160,10 +160,10 @@ export const CreateTrialBalance = () => {
                 <Dropdown
                     selectedKey={'A'}
                     onChange={() => { }}
-                    options={[{ key: 'A', text: '(01/04/2025 - 31/03/2026)', disabled: true }]}
+                    options={[{ key: 'A', text: 'Normal Adjusting', disabled: true }]}
                     styles={dropdownStyles}
                 />
-            </Stack>
+            </Stack>    
         </Stack>
         <Stack horizontal styles={formRowStyles}>
             <Text styles={formLabelStyles}>Description</Text>
